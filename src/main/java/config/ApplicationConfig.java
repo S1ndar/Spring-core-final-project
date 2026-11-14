@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 @Configuration
-@ComponentScan({"account", "user"})
+@ComponentScan({"account", "user", "console", "operation"})
 @PropertySource("classpath:application.properties")
 public class ApplicationConfig {
 }

@@ -31,7 +31,6 @@ public class AccountService {
     }
 
     public Account closeAccount(int accountId){
-
         Account account = accounts.get(accountId);
         accounts.remove(accountId);
         return account;
@@ -65,8 +64,8 @@ public class AccountService {
             throw new IllegalArgumentException("Cannot transfer money to the same account (ID= " + fromId + ").");
         }
 
-        Account fromAccount = accounts.get(fromId);
-        Account toAccount = accounts.get(toId);
+        Account fromAccount = getAccountById(fromId);
+        Account toAccount = getAccountById(toId);
 
         if (fromAccount.getMoneyAmount() < amount) {
             throw new IllegalStateException("Insufficient funds for transfer on account " + fromId + ". Current balance: " + fromAccount.getMoneyAmount());
@@ -85,7 +84,6 @@ public class AccountService {
                 : " commission "+commissionInAmount +" recipient receiveed: "+amountToTransfer;
 
         return "Transfer completed from account "+fromId +" to account "+ toId+" . Amount: "+amount+messageAboutCommission;
-
     }
 
     public Account getAccountById(int accountId) {

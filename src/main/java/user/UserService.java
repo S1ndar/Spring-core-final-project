@@ -39,26 +39,32 @@ public class UserService {
     }
 
     public Account createAccountForUser(int userId) {
-        User user = users.get(userId);
+        User user = getUserById(userId);
         Account account = accountService.createAnotherAccount(userId);
         user.getAccountList().add(account);
         return account;
     }
 
-    public Account closeAccountForUser(int accountId) {
-
+    public String closeAccountForUser(int accountId) {
         Account accountToClose = accountService.getAccountById(accountId);
-        User user = users.get(accountToClose.getUserId());
-
+        User user = getUserById(accountToClose.getUserId());
         if (user.getAccountList().size() <= 1) {
-            throw new IllegalStateException("Cannot close the only account for user ID=" + user.getId());
+            throw new IllegalStateException("Cannot close the only account for user "+user.getLogin() +", ID= "+ user.getId());
+        }
+        Account fisrtAccount = user.getAccountList().stream().
+                filter(account -> account.getId() != accountId)
+                .findFirst()
+               .orElseThrow(() -> new IllegalStateException("No target account found."));
+
+        String tranferMessage = "";
+        if (accountToClose.getMoneyAmount() > 0){
+            tranferMessage = accountService.accountTransfer(accountToClose.getId(), fisrtAccount.getId(), accountToClose.getMoneyAmount());
         }
 
-        user.getAccountList().remove(accountToClose);
-        Account finalAccount = user.getAccountList().getFirst();
 
-        accountService.accountTransfer(accountToClose.getId(), finalAccount.getId(), accountToClose.getMoneyAmount());
-        return accountService.closeAccount(accountId);
+        user.getAccountList().remove(accountToClose);
+        accountService.closeAccount(accountId);
+        return tranferMessage;
     }
 
     public User getUserById(int userId) {
@@ -75,9 +81,4 @@ public class UserService {
     public Map<Integer, User> showAllUsers() {
         return users;
     }
-
-
-
-
-
 }
