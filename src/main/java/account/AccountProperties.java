@@ -13,6 +13,16 @@ public class AccountProperties {
             @Value("${account.transfer-commission}")
             double transferCommission
     ) {
+        if (defaultAmount < 0) {
+            throw new IllegalArgumentException(
+                    "Default account amount cannot be negative: " + defaultAmount
+            );
+        }
+        if (!Double.isFinite(transferCommission) || transferCommission < 0.0 || transferCommission > 1.0) {
+            throw new IllegalArgumentException(
+                    "Transfer commission must be a finite number between 0 and 1: " + transferCommission
+            );
+        }
         this.defaultAmount = defaultAmount;
         this.transferCommission = transferCommission;
     }
