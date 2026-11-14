@@ -30,16 +30,15 @@ public class AccountService {
         return account;
     }
 
-    public Account closeAccount(int accountId){
-        Account account = accounts.get(accountId);
+    public void closeAccount(int accountId){
+        getAccountById(accountId);
         accounts.remove(accountId);
-        return account;
     }
 
     public String accountDeposit(int accountId, int amount){
         validateAmount(amount);
 
-        Account account = accounts.get(accountId);
+        Account account = getAccountById(accountId);
         account.setMoneyAmount(account.getMoneyAmount()+amount);
         return "Deposited "+amount+ " to account "+account.getId() + " New balance: " +  account.getMoneyAmount();
     }
@@ -47,7 +46,7 @@ public class AccountService {
     public String accountWithdraw(int accountId, int amount){
         validateAmount(amount);
 
-        Account account = accounts.get(accountId);
+        Account account = getAccountById(accountId);
 
         if (account.getMoneyAmount() < amount) {
             throw new IllegalStateException("Insufficient funds on account " + accountId + ". Current balance: " + account.getMoneyAmount());
@@ -81,13 +80,13 @@ public class AccountService {
         toAccount.setMoneyAmount(toAccount.getMoneyAmount()+amountToTransfer);
 
         String messageAboutCommission = isSameUser ? " (no commission, same user)"
-                : " commission "+commissionInAmount +" recipient receiveed: "+amountToTransfer;
+                : " commission "+commissionInAmount +" recipient received: "+amountToTransfer;
 
         return "Transfer completed from account "+fromId +" to account "+ toId+" . Amount: "+amount+messageAboutCommission;
     }
 
     public Account getAccountById(int accountId) {
-        if (accountId < 0){
+        if (accountId <= 0){
             throw new IllegalArgumentException("Id must be positive");
         }
 

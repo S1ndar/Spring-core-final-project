@@ -5,6 +5,7 @@ import account.AccountService;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,20 +52,20 @@ public class UserService {
         if (user.getAccountList().size() <= 1) {
             throw new IllegalStateException("Cannot close the only account for user "+user.getLogin() +", ID= "+ user.getId());
         }
-        Account fisrtAccount = user.getAccountList().stream().
+        Account firstAccount = user.getAccountList().stream().
                 filter(account -> account.getId() != accountId)
-                .findFirst()
-               .orElseThrow(() -> new IllegalStateException("No target account found."));
+                .min(Comparator.comparingInt(Account::getId))
+                .orElseThrow(() -> new IllegalStateException("No target account found."));
 
-        String tranferMessage = "";
+        String transferMessage = "";
         if (accountToClose.getMoneyAmount() > 0){
-            tranferMessage = accountService.accountTransfer(accountToClose.getId(), fisrtAccount.getId(), accountToClose.getMoneyAmount());
+            transferMessage = accountService.accountTransfer(accountToClose.getId(), firstAccount.getId(), accountToClose.getMoneyAmount());
         }
 
 
         user.getAccountList().remove(accountToClose);
         accountService.closeAccount(accountId);
-        return tranferMessage;
+        return transferMessage;
     }
 
     public User getUserById(int userId) {
@@ -79,6 +80,6 @@ public class UserService {
     }
 
     public Map<Integer, User> showAllUsers() {
-        return users;
+        return Map.copyOf(users);
     }
 }
