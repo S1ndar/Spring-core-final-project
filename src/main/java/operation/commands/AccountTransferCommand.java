@@ -1,6 +1,7 @@
 package operation.commands;
 
 import account.AccountService;
+import account.TransferResult;
 import console.ConsoleInput;
 import operation.Commands;
 import operation.OperationCommand;
@@ -20,7 +21,16 @@ public class AccountTransferCommand implements OperationCommand {
         int fromId = consoleInput.readInt("From: id");
         int toId = consoleInput.readInt("To: id");
         int amount = consoleInput.readInt("Amount: ");
-        System.out.println(accountService.accountTransfer(fromId, toId, amount));
+
+        TransferResult result = accountService.accountTransfer(fromId, toId, amount);
+
+        String commissionMsg = result.sameUser()
+                ? " (no commission, same user)"
+                : " commission " + result.commission() + " recipient received: " + result.amountToTransfer();
+
+        System.out.println("Transfer completed from account " + result.fromAccount().getId()
+                + " to account " + result.toAccount().getId()
+                + " . Amount: " + result.amount() + commissionMsg);
     }
 
     @Override

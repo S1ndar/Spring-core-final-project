@@ -2,6 +2,7 @@ package user;
 
 import account.Account;
 import account.AccountService;
+import account.TransferResult;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -27,12 +28,12 @@ public class UserService {
 
         boolean loginIsExist = users.values().stream()
                 .anyMatch(existingUser -> existingUser.getLogin().equals(login));
-        if  (loginIsExist) {
+        if (loginIsExist) {
             throw new IllegalArgumentException("User already exists");
         }
 
         int userId = idCounter++;
-        User user = new User(userId,login,new ArrayList<>());
+        User user = new User(userId, login, new ArrayList<>());
         Account defaultAccount = accountService.createDefaultAccount(userId);
         user.getAccountList().add(defaultAccount);
         users.put(userId, user);
@@ -46,26 +47,33 @@ public class UserService {
         return account;
     }
 
-    public String closeAccountForUser(int accountId) {
+    public CloseAccountResult closeAccountForUser(int accountId) {
         Account accountToClose = accountService.getAccountById(accountId);
         User user = getUserById(accountToClose.getUserId());
+
         if (user.getAccountList().size() <= 1) {
-            throw new IllegalStateException("Cannot close the only account for user "+user.getLogin() +", ID= "+ user.getId());
+            throw new IllegalStateException("Cannot close the only account for user "
+                    + user.getLogin() + ", ID= " + user.getId());
         }
-        Account firstAccount = user.getAccountList().stream().
-                filter(account -> account.getId() != accountId)
+
+        Account targetAccount = user.getAccountList().stream()
+                .filter(account -> account.getId() != accountId)
                 .min(Comparator.comparingInt(Account::getId))
                 .orElseThrow(() -> new IllegalStateException("No target account found."));
 
-        String transferMessage = "";
-        if (accountToClose.getMoneyAmount() > 0){
-            transferMessage = accountService.accountTransfer(accountToClose.getId(), firstAccount.getId(), accountToClose.getMoneyAmount());
+        TransferResult transferResult = null;
+        if (accountToClose.getMoneyAmount() > 0) {
+            transferResult = accountService.accountTransfer(
+                    accountToClose.getId(),
+                    targetAccount.getId(),
+                    accountToClose.getMoneyAmount()
+            );
         }
-
 
         user.getAccountList().remove(accountToClose);
         accountService.closeAccount(accountId);
-        return transferMessage;
+
+        return new CloseAccountResult(accountId, user.getId(), targetAccount.getId(), transferResult);
     }
 
     public User getUserById(int userId) {

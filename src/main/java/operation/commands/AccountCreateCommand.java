@@ -22,7 +22,9 @@ public class AccountCreateCommand implements OperationCommand {
     public void execute() {
         int userId = consoleInput.readInt("Enter user ID: ");
         Account account = userService.createAccountForUser(userId);
-        System.out.println("Account created: "+account);
+        System.out.println("Account created: id=" + account.getId()
+                + ", userId=" + account.getUserId()
+                + ", balance=" + account.getMoneyAmount());
     }
 
     @Override

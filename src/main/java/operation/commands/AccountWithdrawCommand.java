@@ -1,5 +1,6 @@
 package operation.commands;
 
+import account.Account;
 import account.AccountService;
 import console.ConsoleInput;
 import operation.Commands;
@@ -21,7 +22,9 @@ public class AccountWithdrawCommand implements OperationCommand {
     public void execute() {
         int accountId = consoleInput.readInt("Account ID: ");
         int amount = consoleInput.readInt("Amount: ");
-        System.out.println(accountService.accountWithdraw(accountId, amount));
+        Account account = accountService.accountWithdraw(accountId, amount);
+        System.out.println("Withdrawn " + amount + " from account " + account.getId()
+                + ". New balance: " + account.getMoneyAmount());
     }
 
     @Override
