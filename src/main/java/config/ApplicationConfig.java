@@ -15,7 +15,7 @@ public class ApplicationConfig {
         org.hibernate.cfg.Configuration configuration = new org.hibernate.cfg.Configuration();
         configuration
                 .setProperty("hibernate.connection.driver_class", "org.postgresql.Driver")
-                .setProperty("hibernate.connection.url", "jdbc:postgresql://localhost:5432/postgres")
+                .setProperty("hibernate.connection.url", "jdbc:postgresql://localhost:5432/bank")
                 .setProperty("hibernate.connection.username", "postgres")
                 .setProperty("hibernate.connection.password", "root")
                 .setProperty("hibernate.show_sql", "true")
